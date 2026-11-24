@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>論理工房 — 情報論理パズル</title>
+<style>
+:root{--ink:#20283d;--muted:#545f76;--line:#d8dee9;--paper:#f5f6fa;--white:#fff;--purple:#5032a6;--pale:#eee8ff;--green:#136849;--rose:#9f2f40;--nav:#17192d;--shadow:0 12px 35px #25284a12}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.65 "Yu Gothic UI","Meiryo",system-ui,sans-serif}button,input,select{font:inherit}button{color:inherit;cursor:pointer}button:disabled{cursor:default;opacity:.5}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #b37400;outline-offset:3px}[hidden]{display:none!important}
+.shell{display:grid;grid-template-columns:265px minmax(0,1fr);min-height:100svh}aside{background:var(--nav);color:#f1efff;padding:25px 17px;align-self:start;position:sticky;top:0;max-height:100dvh;overflow:auto}.brand{margin:0 0 5px;padding:0 8px;font-size:24px;letter-spacing:.07em}.aside-progress{padding:0 8px 18px;color:#c5c2df;font-size:13px}nav{display:grid;gap:4px}.chapter{width:100%;border:0;border-radius:8px;background:transparent;color:inherit;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 8px}.chapter:hover,.chapter[aria-current=true]{background:#343050}.chapter small{color:#d4c9ff;white-space:nowrap}
+main{min-width:0;width:100%;max-width:1110px;margin:0 auto;padding:33px clamp(17px,4vw,55px) 40px}.top{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:14px}.top h2{font-size:clamp(22px,3vw,33px);margin:0;line-height:1.25}.sub{color:var(--muted);margin:6px 0 0}.levels{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 22px}.levels button{border:1px solid var(--line);background:white;min-width:44px;border-radius:7px;padding:6px 9px}.levels button[aria-current=true]{background:var(--purple);border-color:var(--purple);color:white}.levels .done:not([aria-current=true]){color:var(--green);background:#edf8f1}
+.sheet{background:var(--white);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}.problem{padding:22px clamp(15px,4vw,34px) 17px;border-bottom:1px solid var(--line)}.problem h3{font-size:25px;margin:2px 0 7px;line-height:1.25}.problem p{margin:6px 0}.source{font-size:13px;color:var(--muted)}#board{padding:23px clamp(15px,4vw,34px);min-height:210px}.actions{border-top:1px solid var(--line);padding:15px clamp(15px,4vw,34px);display:flex;flex-wrap:wrap;gap:8px;align-items:center}.actions .next{margin-left:auto}.btn{border:1px solid var(--line);background:white;padding:7px 12px;border-radius:8px}.btn:hover:not(:disabled){border-color:var(--purple);background:var(--pale)}.primary,.primary:hover:not(:disabled){background:var(--purple);border-color:var(--purple);color:white}.tile{border:1px solid var(--line);border-radius:8px;background:#f8f8fc;padding:8px 11px}.tile[aria-pressed=true]{background:var(--pale);border-color:var(--purple);color:#362075}.tray{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:9px 0}.panel{padding:12px 15px;background:#f5f4fa;border-radius:9px;margin:0 0 14px}.formula{font-family:"Cambria Math","STIX Two Text",serif;font-size:1.16em;overflow-wrap:anywhere}.proof-row{display:flex;gap:8px;align-items:center;border-inline-start:3px solid #e3daf9;margin-block:5px;padding-inline:8px;min-width:0}.proof-row .tile{text-align:left;overflow-wrap:anywhere}.proof-row small{color:var(--muted);overflow-wrap:anywhere}label{display:inline-flex;align-items:center;gap:6px}input,select{min-width:0;max-width:100%;padding:7px;border:1px solid #aab3c4;border-radius:6px;background:white;color:var(--ink)}.stack{display:flex;gap:8px;flex-wrap:wrap}.stack span{background:white;border:1px solid var(--line);border-radius:6px;padding:6px;overflow-wrap:anywhere}.state{font-size:14px;color:var(--muted)}#feedback,#help{padding:0 clamp(15px,4vw,34px);margin:0 0 14px;overflow-wrap:anywhere}#feedback:empty,#help:empty{display:none}#feedback[data-tone=good]{color:var(--green)}#feedback[data-tone=bad]{color:var(--rose)}#help{color:#433366}.truth{border-collapse:collapse;margin:8px 0}.truth th,.truth td{border:1px solid var(--line);padding:5px 9px;text-align:center}.proof-tree{overflow:auto;padding:10px 0;text-align:center}.tree-node{display:inline-flex;flex-direction:column;align-items:stretch;margin:0 5px;vertical-align:top;white-space:nowrap}.tree-children{display:flex;align-items:end;justify-content:center;gap:3px}.tree-root{border-top:1px solid #78738b;padding:0 6px}.tree-node small{font:11px "Yu Gothic UI",sans-serif;color:var(--muted);margin-left:4px}.split{display:flex;flex-wrap:wrap;gap:24px}.world td button{width:39px;padding:4px}.world td,.world th{padding:4px 7px}.status-line{display:block;margin:3px 0}.footer-note{margin-top:12px;font-size:13px;color:var(--muted)}.mobile-chapters{display:none}
+@media(max-width:720px){.shell{display:block}aside{position:static;max-height:none;padding:13px 16px}.brand{font-size:20px}.aside-progress{padding:0 8px 7px}aside nav{display:none}.mobile-chapters{display:block;width:100%;margin-top:7px}main{padding-top:20px}.top{align-items:start}.proof-row{margin-left:0!important}.actions .next{margin-left:0}}
+@media(pointer:coarse){button,select,input{min-height:44px}.world td,.world th{padding-inline:3px}}
+</style>
+<div class="shell">
+<aside><h1 class="brand">論理工房</h1><div id="total" class="aside-progress"></div><nav id="chapters" aria-label="章"></nav><select id="mobile" aria-label="章を選択" class="mobile-chapters"></select></aside>
+<main>
+<header class="top"><div><h2 id="chapter-title"></h2><p class="sub" id="chapter-sub"></p></div></header>
+<div id="levels" class="levels" aria-label="ステージ"></div>
+<article class="sheet" aria-labelledby="title"><header class="problem"><div id="source" class="source"></div><h3 id="title" tabindex="-1"></h3><p id="prompt"></p></header>
+<section id="board" aria-label="パズル盤面"></section>
+<div id="feedback" role="status"></div><div id="help" role="status"></div>
+<div class="actions"><button id="check" class="btn primary">判定する</button><button id="hint" class="btn">ヒント</button><button id="undo" class="btn">一手戻す</button><button id="reset" class="btn">やり直す</button><button id="next" class="btn next">次のステージ →</button></div></article>
+<p class="footer-note">全ステージを自由に選べます。クリア状況はこのブラウザに保存します。</p>
+</main>
+</div>
+<script>
+"use strict";
+const choice = (title,prompt,correct,wrong,hint) => ({kind:"choice",title,prompt,correct,options:[correct,...wrong],hint});
+const order = (title,prompt,steps,hint) => ({kind:"order",title,prompt,steps,hint});
+const rewrite = (title,prompt,steps,hint) => ({kind:"rewrite",title,prompt,steps,hint});
+const truth = (title,prompt,formulas,hint) => ({kind:"truth",title,prompt,formulas,hint});
+const proof = (title,target,given,rules,solution,hint) => ({kind:"proof",title,prompt:"講義の推論規則を使い、最後の行で目標式を導いてください。",target,given,rules,solution,hint});
+const model = (title,prompt,n,conditions,hint) => ({kind:"model",title,prompt,n,conditions,hint});
+const terms = (title,target,limit,hint) => ({kind:"terms",title,prompt:`解釈すると ${target} になる閉項を、${limit} 個以内の記号で組み立ててください。`,target,limit,hint});
+const clauses = (title,initial,hint) => ({kind:"clauses",title,prompt:"二つの節と、打ち消す相補リテラルを選び、空節 □ を導いてください。",initial,hint});
+const linear = ["仮定","→I","→E"];
+const conjunction = [...linear,"∧I","∧Eₗ","∧Eᵣ"];
+const classical = [...conjunction,"⊥","RAA"];
+const quantified = [...conjunction,"∀I","∀E","∃I","∃E"];
+const chapters = [
+  {name:"帰納法と集合", source:"第2〜5回", stages:[
+    order("帰納法の足場","1 から n までの和の公式を証明する流れを並べてください。",["n=1 で公式を確認する","任意の k≥1 で公式を仮定する","k+1 の和を k までの和と k+1 に分ける","帰納法の仮定を代入し、k+1 の公式に整理する","帰納法により、すべての n≥1 で成立と結論する"],"基底と帰納段階の二つをそろえます。"),
+    choice("完全帰納法","n≥2 の整数が素数の積で書けることを完全帰納法で示します。合成数 n=ab で使う仮定はどれですか。","2≤m<n のすべての m が素数の積で書ける",["m=n−1 だけが素数の積で書ける","n 自身が素数の積で書ける","n 以上の m がすべて素数の積で書ける"],"a と b はどちらも n より小さいです。"),
+    choice("反例を最小にする","自然数についての主張に反例があると仮定しました。最小の反例 m を選ぶと何が分かりますか。","m より小さい自然数では主張が成立する",["m−1 では必ず反例になる","m より大きい自然数では成立する","反例は m の一つだけになる"],"自然数の整列性を使います。"),
+    choice("偶数の無限列","ℕ={0,1,…} と非負偶数全体の間の全単射を選んでください。","n ↦ 2n",["n ↦ 2n+2","n ↦ 2n+1","n ↦ 0"],"0 も値域の要素です。"),
+    choice("対角線の反撃","A の各要素 a に部分集合 f(a) を割り当てました。どの f(a) とも異なる部分集合はどれですか。","{a∈A | a∉f(a)}",["{a∈A | a∈f(a)}","空集合","すべての f(a) の和集合"],"各 a の位置で f(a) と所属を反転します。"),
+    choice("集合の否定","『すべての A の要素は B に属する』の否定を選んでください。","A に属し B に属さない要素がある",["B に属し A に属さない要素がある","A と B に共通要素がない","A のすべての要素が B に属さない"],"包含が破れるときに必要な要素は一つです。")
+  ]},
+  {name:"命題・真理値・同値", source:"第6〜12回", stages:[
+    choice("構文木の根","(P→Q)∧(R→P) の構文木で、根に置く結合子を選んでください。","∧",["→","P","Q"],"左右二つの括弧で囲まれた式をつなぐ記号です。"),
+    choice("一斉代入","P→(P∧Q) に [P:=Q, Q:=R] を同時代入した結果を選んでください。","Q→(Q∧R)",["R→(R∧R)","Q→(R∧Q)","P→(Q∧R)"],"置き換えで新たに入った Q は再び置き換えません。"),
+    truth("含意を破る","式 P→Q を偽にする付値を作ってください。",[["P→Q",false]],"含意で問題になるのは、前件を満たして後件が偽のときです。"),
+    truth("後件肯定の反例","左の二式を真に保ち、結論 P を偽にしてください。",[["P→Q",true],["Q",true],["P",false]],"前件が偽でも含意は真になります。"),
+    truth("三段の真理値","P を真にしたまま、二つの複合式をどちらも偽にしてください。",[["R∨¬Q",false],["P",true],["P∧(Q→R)",false]],"R∨¬Q が偽なら Q が真で R が偽です。"),
+    choice("等価性の検査","P→Q と古典命題論理で意味論的に等価な式を選んでください。","¬P∨Q",["P∧Q","¬Q∨P","¬P∧Q"],"どちらも P=真, Q=偽 のときだけ偽です。")
+  ]},
+  {name:"標準形と結合子", source:"第13〜16回", stages:[
+    choice("NAND で否定","NAND を ↑ と書きます。¬P を実装する結合を選んでください。","P↑P",["(P↑P)↑(P↑P)","P↑⊥","P↑⊤ をさらに否定する"],"NAND は連言を取った後に真偽を反転します。"),
+    choice("NAND で連言","NAND だけで P∧Q を作ってください。","(P↑Q)↑(P↑Q)",["P↑Q","(P↑P)↑(Q↑Q)","(P↑Q)↑P"],"一度作った NAND の出力を二つの入力につなぎます。"),
+    rewrite("連言標準形への変形","局所的に同値な変形を選んで、節の連言を作ってください。",[
+      ["P∨(Q∧R)","(P∨Q)∧(P∨R)",["(P∧Q)∨(P∧R)","(P∨Q)∨(P∨R)"]]],"∨ を ∧ の両側に分配します。"),
+    rewrite("選言標準形への変形","否定を内側に移し、リテラルの連言の選言にしてください。",[
+      ["¬(P∧(Q∨R))","¬P∨¬(Q∨R)",["¬P∧¬(Q∨R)","P∨¬(Q∨R)"]],
+      ["¬P∨¬(Q∨R)","¬P∨(¬Q∧¬R)",["¬P∨(¬Q∨¬R)","¬P∧(¬Q∧¬R)"]]],"ド・モルガンの法則で結合子を交換します。"),
+    choice("古典論理の双対","(P∧⊤)∨Q の双対を選んでください。","(P∨⊥)∧Q",["(¬P∨⊥)∧¬Q","(P∨⊤)∧Q","(P∧⊥)∨Q"],"∧と∨、⊤と⊥を交換し、変数はそのままです。"),
+    choice("演繹体系の部品","証明体系における推論規則を記述するものを選んでください。","どの前提からどの結論を導出してよいか",["原子命題への真偽値の割り当て","有限モデルの要素の一覧","すべての真理値表の行数"],"体系の構文上の一手を指定します。")
+  ]},
+  {name:"命題論理の自然演繹", source:"第17〜19・24・41〜44回", stages:[
+    proof("仮定を閉じる","P→P",[],linear,[["仮定","P"],["→I",1]],"P の仮定を開いたら、その行を選んで →I で閉じます。"),
+    proof("含意をつなぐ","R",["P","P→Q","Q→R"],linear,[["→E",1,2],["→E",4,3]],"P と P→Q から Q を作ります。"),
+    proof("連言を交換する","(P∧Q)→(Q∧P)",[],conjunction,[["仮定","P∧Q"],["∧Eₗ",1],["∧Eᵣ",1],["∧I",3,2],["→I",4]],"∧I では選択順が左右の順になります。"),
+    proof("見えない仮定","P→(Q→P)",[],conjunction,[["仮定","P"],["仮定","Q"],["→I",1],["→I",3]],"Q を仮定した範囲でも外側の P は参照できます。"),
+    proof("矛盾まで進む","(P→Q)→¬(P∧¬Q)",[],classical,[["仮定","P→Q"],["仮定","P∧¬Q"],["∧Eₗ",2],["∧Eᵣ",2],["→E",1,3],["→E",4,5],["→I",6],["→I",7]],"練習問題2。P∧¬Q を分け、Q と ¬Q を合わせます。"),
+    proof("矢印を反転する","¬(P∧¬Q)→(P→Q)",[],classical,[["仮定","¬(P∧¬Q)"],["仮定","P"],["仮定","¬Q"],["∧I",2,3],["→E",1,4],["RAA",5],["→I",6],["→I",7]],"練習問題3。¬Q を一時的に仮定し、矛盾を出したら RAA で Q を得ます。"),
+    proof("選言を作る","Q→(P∨Q)",[],[...linear,"∨Iᵣ"],[["仮定","Q"],["∨Iᵣ","P",1],["→I",2]],"∨Iᵣ では、選択した式を右に、入力した式を左に置きます。"),
+    proof("矛盾から任意の式","P→(¬P→Q)",[],classical,[["仮定","P"],["仮定","¬P"],["→E",1,2],["⊥","Q",3],["→I",4],["→I",5]],"P と P→⊥ から矛盾を作り、矛盾の消去で Q を得ます。")
+  ]},
+  {name:"健全性・完全性・BHK", source:"第21〜27回", stages:[
+    order("健全性を支える骨組み","導出の構造に関する帰納法で健全性を示す流れを並べてください。",["任意の導出を固定する","仮定一つだけの導出で成立を確認する","最後の推論規則ごとに、直前の部分導出へ帰納法の仮定を適用する","規則の意味論と解除した仮定を考慮し、根の結論へ移す"],"根の結論だけでなく、その根を作った規則に注目します。"),
+    choice("健全性の向き","古典命題論理の自然演繹の健全性は、どちら向きの含意ですか。","Γ⊢A なら Γ⊨A",["Γ⊨A なら Γ⊢A","Γ⊬A なら Γ⊨A","Γ⊢A なら Γ の任意の部分集合から A が導出できる"],"証明体系が誤った意味論的帰結を作らないことです。"),
+    choice("矛盾と充足","Γ から ⊥ が導出できました。健全性から何が言えますか。","Γ のすべての式を真にする付値は存在しない",["Γ の各式はそれぞれ恒偽式である","Γ は空集合である","Γ の各式はそれぞれ恒真式である"],"充足とは、同じ付値で全前提を真にすることです。"),
+    order("反例が現れるまで","古典命題論理で Γ⊬A から反例の付値を作る講義の流れを並べてください。",["Γ∪{¬A} が無矛盾であることを示す","極大無矛盾集合に拡張する","原子命題の所属から付値を作り、真理補題を使う","Γ が真で A が偽になる"],"最初に、A の否定を前提に追加します。"),
+    choice("BHK の含意","BHK 解釈で A→B の証明が与えるものを選んでください。","A の任意の証明を B の証明に変える方法",["B の証明から A の証明に戻る方法","A の証明と B の証明を並べた組","A を満たさない付値の一覧"],"含意の導入は、仮定 A のもとで B を作る操作でした。"),
+    choice("古典と直観主義","練習問題3では、¬Q を仮定して矛盾を出しました。次に Q を得る操作を選んでください。","¬Q の仮定を解除して Q を得る RAA",["Q と R から Q∧R を得る ∧I","Q∧R から Q を得る ∧Eₗ","Q→R と Q から R を得る →E"],"¬Q→⊥ を作る操作と、そこから Q を得る操作を区別します。")
+  ]},
+  {name:"項・束縛・代入", source:"第28〜31・39〜40回", stages:[
+    terms("閉項の組み立て",3,4,"0 に S を三度適用すると 3 です。"),
+    terms("練習問題1・値は5",5,6,"S は値を 1 増やします。まずは S だけでも到達できます。"),
+    terms("閉項の因数分解",16,11,"4 を表す閉項は、0̄ と S を合わせて5記号です。その閉項を二つ作って T を適用します。"),
+    choice("自由変数の位置","R(x,y)∧∀x S(x,z) の自由変数集合を選んでください。","{x,y,z}",["{y,z}","{x}","{x,z}"],"右の ∀x のスコープは S(x,z) です。"),
+    rewrite("捕獲を避ける代入","∀y R(x,y) の自由な x に y を代入します。安全な途中式を選んでください。",[
+      ["∀y R(x,y)","∀z R(x,z)",["∀y R(y,y)","∀z R(z,y)"]],
+      ["∀z R(x,z)","∀z R(y,z)",["∀y R(y,z)","∀z R(z,z)"]]],"まず束縛されている y を、新しい変数 z に改名します。"),
+    choice("項とその値","練習問題1の言語で、自然数 5 を表す閉項を答える場面です。提出できるものを選んでください。","S(S(S(S(S(0̄)))))",["5","S(x)","T(0̄)"],"使える記号は 0̄、単項 S、二項 P と T です。")
+  ]},
+  {name:"モデルと等号", source:"第31〜34回", stages:[
+    model("全員に行き先", "各点から少なくとも一つの辺が出ていて、自己ループは一つもない構造を作ってください。",2,[
+      ["∀x∃y R(x,y)",true, g=>g.every(row=>row.some(Boolean))],
+      ["∃x R(x,x)",false,g=>g.some((row,i)=>row[i])]],"二点を互いに結びます。"),
+    model("順序を入れ替える反例","前提には各点の行き先が必要です。全点から到達できる共通の行き先がないようにしてください。",2,[
+      ["∀x∃y R(x,y)",true,g=>g.every(row=>row.some(Boolean))],
+      ["∃y∀x R(x,y)",false,g=>g[0].some((_,j)=>g.every(row=>row[j]))]],"各点を自分自身だけに結ぶ方法があります。"),
+    model("対称でも推移的でない","辺の対称性を成立させ、推移性を破る構造を作ってください。",3,[
+      ["∀x∀y (R(x,y)→R(y,x))",true,g=>g.every((row,i)=>row.every((v,j)=>!v||g[j][i]))],
+      ["∀x∀y∀z ((R(x,y)∧R(y,z))→R(x,z))",false,g=>g.every((row,i)=>row.every((v,j)=>!v||g[j].every((w,k)=>!w||g[i][k]))) ]],"往復できる二点に、自己ループがあるかを考えます。"),
+    model("推移的でも対称でない","非反射的で推移的な関係を作り、対称性は破ってください。",3,[
+      ["∃x R(x,x)",false,g=>g.some((row,i)=>row[i])],
+      ["∀x∀y (R(x,y)→R(y,x))",false,g=>g.every((row,i)=>row.every((v,j)=>!v||g[j][i]))],
+      ["∀x∀y∀z ((R(x,y)∧R(y,z))→R(x,z))",true,g=>g.every((row,i)=>row.every((v,j)=>!v||g[j].every((w,k)=>!w||g[i][k]))) ]],"辺が一本だけでも、推移性の条件を満たせます。"),
+    choice("等号で二点を区別","非空の領域の濃度が 2 以上であることを表す文を選んでください。","∃x∃y ¬(x=y)",["∀x∀y ¬(x=y)","∃x∀y ¬(x=y)","∃x∃y (x=y)"],"異なる二点の存在だけを要求します。"),
+    choice("等号でちょうど二点","濃度がちょうど 2 の領域を等号で特徴づける文を選んでください。","∃x∃y (¬(x=y)∧∀z (z=x∨z=y))",["∃x∃y ∀z (z=x∨z=y)","∃x∃y (x=y∧∀z (z=x∨z=y))","∀x∀y ¬(x=y)"],"二点が異なることと、三点目がないことの両方を確認します。")
+  ]},
+  {name:"量化子と自然演繹", source:"第35〜37回", stages:[
+    proof("全称から個別へ","P(a)",["∀x P(x)"],quantified,[["∀E","a",1]],"∀E を選び、代入する項 a を入力します。"),
+    proof("存在の証人","∃x P(x)",["P(a)"],quantified,[["∃I","∃x P(x)",1]],"∃I の入力欄に結論の存在文を書きます。"),
+    proof("任意の個体を一般化","∀x (P(x)→P(x))",[],quantified,[["仮定","P(a)"],["→I",1],["∀I","a x",2]],"仮定を先に解除します。入力欄は『任意変数 量化変数』です。"),
+    proof("全称から存在へ","∃x P(x)",["∀x P(x)"],quantified,[["∀E","a",1],["∃I","∃x P(x)",2]],"非空の領域を扱います。∀E で一つの個体に特殊化します。"),
+    proof("存在の証人を外に残さない","∃x Q(x)",["∃x P(x)","∀x (P(x)→Q(x))"],quantified,[["仮定","P(a)"],["∀E","a",2],["→E",3,4],["∃I","∃x Q(x)",5],["∃E","a",1,6]],"P(a) を仮定し、∃x Q(x) まで導いてから ∃E で仮定を閉じます。"),
+    choice("一般化の落とし穴","未解除の前提 P(a) に依存して P(a) を得ました。∀I がここで使えない理由を選んでください。","a が依存している未解除の仮定に自由出現する",["P が述語記号である","量化変数はすべての段階で a と同じ名前でなければならない","∀I は含意にだけ適用できる"],"前提が a だけに課した条件を、全個体へ広げようとしています。")
+  ]},
+  {name:"冠頭標準形とエルブラン", source:"第33・38・45〜46回", stages:[
+    rewrite("量化子を否定する","否定を述語の直前まで運んでください。",[
+      ["¬∀x∃y R(x,y)","∃x ¬∃y R(x,y)",["∀x ¬∃y R(x,y)","∃x ∃y ¬R(x,y)"]],
+      ["∃x ¬∃y R(x,y)","∃x∀y ¬R(x,y)",["∃x∃y ¬R(x,y)","∀x∀y ¬R(x,y)"]]],"否定をまたぐと ∀ と ∃ を交換します。"),
+    rewrite("練習問題4・冠頭化","量化子の束縛先を保ったまま、すべての量化子を先頭へ運んでください。",[
+      ["¬∀x P(x) ∨ ∀x Q(x)","¬∀x P(x) ∨ ∀y Q(y)",["¬∀x P(x) ∨ ∀y Q(x)","¬∀x P(x) ∨ ∃y Q(y)"]],
+      ["¬∀x P(x) ∨ ∀y Q(y)","(∃x ¬P(x)) ∨ ∀y Q(y)",["(∀x ¬P(x)) ∨ ∀y Q(y)","(∃x P(x)) ∨ ∀y Q(y)"]],
+      ["(∃x ¬P(x)) ∨ ∀y Q(y)","∃x∀y (¬P(x)∨Q(y))",["∃x∀y (¬P(y)∨Q(x))","∃x∀y (¬P(x)∧Q(y))"],["∀y∃x (¬P(x)∨Q(y))"]]],"左右の自由変数を確認します。この面では二つの冠頭形を受理します。"),
+    choice("スコーレム関数の引数","∀x∃y∀z∃w R(x,y,z,w) をスコーレム化します。新しい関数記号 f,g で表した結果を選んでください。","∀x∀z R(x,f(x),z,g(x,z))",["∀x∀z R(x,f(z),z,g(z))","∀x∀z R(x,f(x,z),z,g(z))","∀x∀z R(x,f(x),z,g(x))"],"存在量化子より前にある全称変数を、出現順に引数とします。"),
+    choice("保存されるもの","スコーレム化で、元の式と変換後の式の間で保存される性質を選んでください。","充足可能性",["同じ言語を使うこと","論理式の長さ","すべての構造で同じ論理式として評価できること"],"新しい関数記号によって言語が拡張されます。"),
+    choice("エルブラン宇宙の第2層","定数 c と単項関数 f だけの言語です。深さ2で初めて加わる閉項を選んでください。","f(f(c))",["f(c)","f(f(x))","f(c,c)"],"閉項に自由変数はありません。"),
+    order("有限個の基礎例へ","講義第38回の流れで、一階の充足不能を命題論理の問題へ移す手順を並べてください。",["冠頭標準形へ変形する","スコーレム化し全称形にする","閉項を代入して基礎例を列挙する","基礎原子式を命題変数として扱う","有限個の基礎例の命題的な充足不能を示す"],"有限の段階で矛盾が出ないことだけでは、探索は終了しません。")
+  ]},
+  {name:"導出原理と無限モデル", source:"第47〜48回", stages:[
+    clauses("節を一枚消す",[["P"],["¬P","Q"],["¬Q"]],"P と ¬P を消すと単位節 Q が残ります。"),
+    clauses("分岐を両方閉じる",[["P","Q"],["¬P","Q"],["P","¬Q"],["¬P","¬Q"]],"片側の分岐を解消して Q を、もう片側から ¬Q を作れます。"),
+    clauses("連鎖を止める",[["P","Q"],["¬P","R"],["¬Q","R"],["¬R"]],"¬R を使って ¬P と ¬Q を先に得る方法があります。"),
+    choice("単一化して反駁","P(x)∨Q(x) と ¬P(f(a)) を一階の導出原理でつなぐとき、導出節を選んでください。","Q(f(a))",["Q(x)","Q(a)","P(f(a))∨Q(x)"],"P の引数を一致させる代入を、節全体に適用します。"),
+    choice("可算モデルの視点","可算な言語の一階理論が無限モデルを持つとき、下方レーヴェンハイム・スコーレムの定理から得られるものは何ですか。","その理論の可算無限モデル",["任意の有限サイズのモデル","すべてのモデルが可算であるという結論","同じ領域の上にある唯一のモデル"],"主張は少なくとも一つの可算モデルの存在です。"),
+    choice("スコーレムのパラドックス","集合論の可算モデルが、内部で『ある集合は非可算』と述べられる理由を選んでください。","外部の数え上げを与える全単射が、モデル内に存在するとは限らない",["モデルに含まれる集合はすべて有限だから","モデル内部で自然数が存在しないから","『全単射』の定義が可算モデルでは無効だから"],"モデルの量化は、モデルが持つ対象の上で行われます。")
+  ]}
+];
+function requireThat(condition,message){
+  if(!condition) throw new Error(message);
+}
+
+function parseFormula(input){
+  const source = input.replaceAll("->","→").replaceAll("~","¬").replace(/\s/g,"");
+  const tokens = source.match(/[A-Z]|[a-z]|[→∧∨¬⊥⊤∀∃(),]/g) ?? [];
+  requireThat(source.length<=180 && tokens.join("")===source,"式を確認してください。例 P→Q、∀x P(x)");
+  let at=0;
+  const accept = token => tokens[at]===token && (++at>0);
+  const variable = () => {
+    const name=tokens[at++];
+    requireThat(/^[a-z]$/.test(name??""),"変数は英小文字1字で入力します。");
+    return name;
+  };
+  function unary(){
+    if(accept("(")){
+      const body=expression();
+      requireThat(accept(")"),"閉じ括弧が足りません。");
+      return body;
+    }
+    if(accept("¬")) return ["→",unary(),["⊥"]];
+    if(tokens[at]==="∀" || tokens[at]==="∃"){
+      const kind=tokens[at++], name=variable();
+      return [kind,name,unary()];
+    }
+    if(accept("⊥")) return ["⊥"];
+    if(accept("⊤")) return ["⊤"];
+    const name=tokens[at++];
+    requireThat(/^[A-Z]$/.test(name??""),"原子式が必要です。例 P、P(a)");
+    const args=[];
+    if(accept("(")){
+      do {args.push(variable());} while(accept(","));
+      requireThat(accept(")"),"述語の閉じ括弧が足りません。");
+    }
+    return ["atom",name,args];
+  }
+  function level(next,op){
+    let result=next();
+    while(accept(op)) result=[op,result,next()];
+    return result;
+  }
+  const and=()=>level(unary,"∧");
+  const or=()=>level(and,"∨");
+  function expression(){
+    const first=or();
+    return accept("→") ? ["→",first,expression()] : first;
+  }
+  const result=expression();
+  requireThat(at===tokens.length,"式の末尾に解釈できない文字があります。");
+  return result;
+}
+
+const quantifier = kind => kind==="∀" || kind==="∃";
+const binary = kind => ["→","∧","∨"].includes(kind);
+function format(f,parent=0){
+  const [kind,left,right]=f;
+  if(kind==="atom") return left+(right.length ? "("+right.join(",")+")" : "");
+  if(quantifier(kind)) return kind+left+" "+format(right,4);
+  if(kind==="→" && right[0]==="⊥") return "¬"+format(left,4);
+  if(binary(kind)){
+    const precedence={"→":1,"∨":2,"∧":3}[kind];
+    const result=format(left,precedence+(kind==="→"?1:0))+" "+kind+" "+format(right,precedence+(kind==="→"?0:1));
+    return precedence<parent ? "("+result+")" : result;
+  }
+  return kind;
+}
+
+function key(f,bound=[]){
+  const [kind,left,right]=f;
+  if(kind==="atom") return [kind,left,right.map(name=>bound.includes(name)? bound.indexOf(name): name)];
+  if(quantifier(kind)) return [kind,key(right,[left,...bound])];
+  if(binary(kind)) return [kind,key(left,bound),key(right,bound)];
+  return [kind];
+}
+const same=(a,b)=>JSON.stringify(key(a))===JSON.stringify(key(b));
+function free(f){
+  const [kind,left,right]=f;
+  if(kind==="atom") return [...new Set(right)];
+  if(quantifier(kind)) return free(right).filter(name=>name!==left);
+  if(binary(kind)) return [...new Set([...free(left),...free(right)])];
+  return [];
+}
+function substitute(f,from,to){
+  const [kind,left,right]=f;
+  if(kind==="atom") return [kind,left,right.map(name=>name===from?to:name)];
+  if(quantifier(kind)){
+    if(left===from) return f;
+    requireThat(left!==to || !free(right).includes(from),"この代入では変数が量化子に捕獲されます。");
+    return [kind,left,substitute(right,from,to)];
+  }
+  return binary(kind)?[kind,substitute(left,from,to),substitute(right,from,to)]:f;
+}
+
+function evaluate(f,values){
+  const [kind,left,right]=f;
+  switch(kind){
+    case "⊥": return false;
+    case "⊤": return true;
+    case "atom": return values[left];
+    case "∧": return evaluate(left,values)&&evaluate(right,values);
+    case "∨": return evaluate(left,values)||evaluate(right,values);
+    case "→": return !evaluate(left,values)||evaluate(right,values);
+  }
+  throw new Error("命題論理の式が必要です。");
+}
+
+function atoms(f){
+  if(f[0]==="atom") return [f[1]];
+  return binary(f[0]) ? [...atoms(f[1]),...atoms(f[2])] : [];
+}
+const isVisible=(line,scope)=>line.scope.every((id,i)=>scope[i]===id);
+const union=arrays=>[...new Set(arrays.flat())].sort((a,b)=>a-b);
+const scopedLine=(formula,scope,deps,rule,parents=[],discharge=null)=>({formula,scope:[...scope],deps,rule,parents,discharge});
+const inputRules={
+  "仮定":"仮定する式",
+  "∨Iᵣ":"左に加える式",
+  "⊥":"導きたい式",
+  "∀E":"代入する変数（例 a）",
+  "∀I":"任意変数と量化変数（例 a x）",
+  "∃I":"目標の存在文（例 ∃x P(x)）",
+  "∃E":"証人を表す変数（例 a）"
+};
+const arity={"仮定":0,"→I":1,"→E":2,"∧I":2,"∧Eₗ":1,"∧Eᵣ":1,"⊥":1,"RAA":1,"∨Iᵣ":1,"∀I":1,"∀E":1,"∃I":1,"∃E":2};
+
+function stepProof(state,rule,rawInput,ids){
+  const {lines,scope}=state, input=rawInput.trim(), closing=["→I","RAA","∃E"].includes(rule);
+  requireThat(ids.length===arity[rule],"必要な参照行は "+arity[rule]+" 行です。");
+  const refs=ids.map(id=>lines[id-1]);
+  requireThat(refs.every(line=>line && isVisible(line,scope)),"閉じた仮定の中にある行は、この位置から参照できません。");
+  const from=refs.map(line=>line.formula);
+  const deps=union(refs.map(line=>line.deps));
+  const openId=scope.at(-1);
+  const open=lines[openId-1]?.formula;
+  const nextScope=closing?scope.slice(0,-1):scope;
+  let result, parents=ids;
+  const variable = value => {
+    requireThat(/^[a-z]$/.test(value),"英小文字1字の変数を入力してください。");
+    return value;
+  };
+  if(closing) requireThat(open,"解除する仮定を先に開いてください。");
+  switch(rule){
+    case "仮定":{
+      const id=lines.length+1;
+      result=parseFormula(input);
+      scope.push(id);
+      lines.push(scopedLine(result,scope,[id],rule));
+      return;
+    }
+    case "→I": result=["→",open,from[0]]; break;
+    case "→E":{
+      const fits=(arrow,argument)=>arrow[0]==="→" && same(arrow[1],argument);
+      const arrow=fits(from[0],from[1])?from[0]:fits(from[1],from[0])?from[1]:null;
+      requireThat(arrow,"A→B と、その前件 A を参照してください。");
+      result=arrow[2];
+      if(arrow!==from[0]) parents=[...ids].reverse();
+      break;
+    }
+    case "∧I": result=["∧",from[0],from[1]]; break;
+    case "∧Eₗ":
+    case "∧Eᵣ":
+      requireThat(from[0][0]==="∧","連言 A∧B の行を参照してください。");
+      result=from[0][rule==="∧Eₗ"?1:2];
+      break;
+    case "∨Iᵣ": result=["∨",parseFormula(input),from[0]]; break;
+    case "⊥":
+      requireThat(from[0][0]==="⊥","矛盾記号 ⊥ の行を参照してください。");
+      result=parseFormula(input);
+      break;
+    case "RAA":
+      requireThat(from[0][0]==="⊥" && open[0]==="→" && open[2][0]==="⊥","¬A を仮定し、⊥ の行を参照してください。");
+      result=open[1];
+      break;
+    case "∀E":{
+      requireThat(from[0][0]==="∀","全称式の行を参照してください。");
+      const [,name,body]=from[0];
+      result=substitute(body,name,variable(input));
+      break;
+    }
+    case "∀I":{
+      const names=input.split(/\s+/);
+      requireThat(names.length===2,"任意変数、量化変数の順に空白で区切って入力します。");
+      const [name,binder]=names.map(variable);
+      requireThat(deps.every(id=>!free(lines[id-1].formula).includes(name)),"任意変数が未解除の依存仮定に自由に現れています。");
+      requireThat(name===binder || !free(from[0]).includes(binder),"量化する変数名がすでに式に自由出現しています。");
+      result=["∀",binder,substitute(from[0],name,binder)];
+      break;
+    }
+    case "∃I":{
+      result=parseFormula(input);
+      requireThat(result[0]==="∃","結論は存在量化子で始めてください。");
+      const [,binder,body]=result;
+      const witnesses=new Set([binder,...free(from[0])]);
+      requireThat([...witnesses].some(name=>{
+        try {return same(substitute(body,binder,name),from[0]);} catch {return false;}
+      }),"参照した式が、入力した存在文の代入例になるか確認してください。");
+      break;
+    }
+    case "∃E":{
+      const name=variable(input);
+      const [exists,goal]=from;
+      requireThat(exists[0]==="∃" && isVisible(refs[0],nextScope),"先に外側の存在文、その次に仮定内で導いた結論を参照してください。");
+      requireThat(same(substitute(exists[2],exists[1],name),open),"現在の仮定が、存在文に証人を代入した式と一致しません。");
+      requireThat(!free(exists).includes(name) && !free(goal).includes(name) && deps.filter(id=>id!==openId).every(id=>!free(lines[id-1].formula).includes(name)),"証人が存在文・結論・未解除の依存仮定のいずれかに自由出現しています。");
+      result=goal;
+      break;
+    }
+    default: throw new Error("推論規則を選択してください。");
+  }
+  lines.push(scopedLine(result,nextScope,closing?deps.filter(id=>id!==openId):deps,rule,parents,closing?openId:null));
+  if(closing) scope.pop();
+}
+
+const opposite=literal=>literal.startsWith("¬")?literal.slice(1):"¬"+literal;
+function resolveClauses(left,right,pivot){
+  requireThat(left.includes(pivot) && right.includes(opposite(pivot)),"二つの節に相補リテラルが必要です。");
+  return [...new Set([...left.filter(x=>x!==pivot),...right.filter(x=>x!==opposite(pivot))])].sort();
+}
+
+const termArities={"0̄":0,S:1,P:2,T:2};
+function stepTerm(stack,symbol){
+  const n=termArities[symbol];
+  requireThat(stack.length>=n,"先に引数を "+n+" 個積んでください。");
+  if(n===0){stack.push({repr:"0̄",value:0,cost:1});return;}
+  const args=stack.splice(-n,n);
+  const [left,right]=args;
+  const value=symbol==="S"?left.value+1:symbol==="P"?left.value+right.value:left.value*right.value;
+  stack.push({repr:symbol+"("+args.map(arg=>arg.repr).join(",")+")",value,cost:1+args.reduce((sum,arg)=>sum+arg.cost,0)});
+}
+const byId=id=>document.getElementById(id);
+const board=byId("board");
+const all=chapters.flatMap((chapter,c)=>chapter.stages.map((stage,s)=>({...stage,source:chapter.source,c,s,id:c+"-"+s})));
+const storage="logic-workshop-v1";
+function readProgress(){
+  try {return new Set(JSON.parse(localStorage.getItem(storage)??"[]").filter(id=>all.some(level=>level.id===id)));}
+  catch {return new Set();}
+}
+const completed=readProgress();
+let current=all.find(level=>level.id===location.hash.slice(1))??all[0];
+let state,historyStack=[],selection=[],rule="",draft="",hintShown=false;
+
+function node(tag,value,classes){
+  const result=document.createElement(tag);
+  if(value!==undefined) result.textContent=value;
+  if(classes) result.className=classes;
+  return result;
+}
+function button(label,action,cls="btn",id){
+  const result=node("button",label,cls);
+  result.type="button";
+  if(id) result.id=id;
+  result.addEventListener("click",action);
+  return result;
+}
+function tile(text,action,id,selected=false){
+  const result=button(text,action,"tile",id);
+  result.setAttribute("aria-pressed",String(selected));
+  return result;
+}
+function feedback(message,tone=""){
+  const element=byId("feedback");
+  element.dataset.tone=tone;
+  element.textContent=message;
+}
+function checked(action){
+  try {action();}
+  catch(error) {feedback(error.message,"bad");}
+}
+function edit(action,focusId){
+  checked(()=>{
+    const previous=structuredClone(state);
+    action();
+    historyStack.push(previous);
+    if(historyStack.length>120) historyStack.shift();
+    feedback("");
+    renderBoard(focusId);
+  });
+}
+const copy=(items)=>items.map(item=>[...item]);
+const truthText=value=>value?"真":"偽";
+const clauseText=clause=>clause.length?clause.join(" ∨ "):"□";
+function shuffle(items,salt){
+  const result=[...items];
+  let seed=101+(current.c+1)*503+(current.s+1)*997+salt*211;
+  for(let i=result.length-1;i>0;i--){
+    seed=(Math.imul(seed,1664525)+1013904223)>>>0;
+    const j=seed%(i+1);
+    [result[i],result[j]]=[result[j],result[i]];
+  }
+  return result;
+}
+function init(stage){
+  const result={solved:false};
+  switch(stage.kind){
+    case "choice": return {...result,pick:null};
+    case "order": return {...result,sequence:[]};
+    case "rewrite": return {...result,steps:[]};
+    case "terms": return {...result,stack:[]};
+    case "truth":{
+      const signs=[...new Set(stage.formulas.flatMap(([f])=>atoms(parseFormula(f))))].sort();
+      return {...result,values:Object.fromEntries(signs.map(name=>[name,false]))};
+    }
+    case "model": return {...result,grid:Array.from({length:stage.n},()=>Array(stage.n).fill(false))};
+    case "proof": return {...result,scope:[],lines:stage.given.map((f,i)=>scopedLine(parseFormula(f),[],[i+1],"前提"))};
+    case "clauses": return {...result,clauses:copy(stage.initial)};
+  }
+}
+
+function setStage(stage,{focus=false,updateHash=true}={}){
+  current=stage;
+  state=init(current);
+  historyStack=[];
+  selection=[];
+  rule=stage.rules?.[0]??"";
+  draft="";
+  hintShown=false;
+  byId("help").textContent="";
+  byId("hint").setAttribute("aria-expanded","false");
+  feedback("");
+  if(updateHash && location.hash.slice(1)!==stage.id) window.history.replaceState(null,"","#"+stage.id);
+  byId("title").textContent=stage.title;
+  byId("source").textContent="講義資料 "+stage.source;
+  byId("prompt").textContent=stage.prompt;
+  renderNavigation();
+  renderBoard();
+  if(focus) byId("title").focus();
+}
+function renderNavigation(){
+  byId("total").textContent=`クリア ${completed.size} / ${all.length}`;
+  byId("chapter-title").textContent=chapters[current.c].name;
+  const levels=all.filter(level=>level.c===current.c);
+  byId("chapter-sub").textContent=`第 ${current.c+1} 章 / ${chapters.length}  ・  ステージ ${current.s+1} / ${levels.length}`;
+  const nav=byId("chapters"),numbers=byId("levels"),mobile=byId("mobile");
+  nav.replaceChildren(); numbers.replaceChildren(); mobile.replaceChildren();
+  chapters.forEach((chapter,i)=>{
+    const first=all.find(level=>level.c===i);
+    const count=chapter.stages.filter((_,s)=>completed.has(i+"-"+s)).length;
+    const entry=button(chapter.name,()=>setStage(first,{focus:true}),"chapter");
+    entry.append(node("small",count+"/"+chapter.stages.length));
+    if(i===current.c) entry.setAttribute("aria-current","true");
+    nav.append(entry);
+    const option=node("option",`${i+1}. ${chapter.name}（${count}/${chapter.stages.length}）`);
+    option.value=first.id; option.selected=i===current.c; mobile.append(option);
+  });
+  levels.forEach(level=>{
+    const done=completed.has(level.id);
+    const item=button(String(level.s+1)+(done?" ✓":""),()=>setStage(level,{focus:true}),done?"done":"");
+    item.setAttribute("aria-label",`ステージ ${level.s+1} ${level.title}${done?"、クリア済み":""}`);
+    if(level===current) item.setAttribute("aria-current","true");
+    numbers.append(item);
+  });
+  byId("next").disabled=all.at(-1)===current;
+}
+
+function renderBoard(focusId){
+  board.replaceChildren();
+  byId("undo").disabled=historyStack.length===0;
+  switch(current.kind){
+    case "choice": drawChoice(); break;
+    case "order": drawOrder(); break;
+    case "rewrite": drawRewrite(); break;
+    case "truth": drawTruth(); break;
+    case "terms": drawTerms(); break;
+    case "model": drawModel(); break;
+    case "proof": drawProof(); break;
+    case "clauses": drawClauses(); break;
+  }
+  if(focusId) byId(focusId)?.focus();
+}
+function drawChoice(){
+  const options=node("div",undefined,"tray");
+  shuffle(current.options,0).forEach((value,index)=>{
+    const id="option-"+index;
+    options.append(tile(value,()=>edit(()=>{state.pick=value;state.solved=false;},id),id,state.pick===value));
+  });
+  board.append(options);
+}
+function drawOrder(){
+  const chosen=node("ol",undefined,"panel");
+  if(!state.sequence.length) chosen.append(node("li","カードを選ぶとここに並びます。","state"));
+  state.sequence.forEach(value=>chosen.append(node("li",value)));
+  board.append(chosen);
+  const choices=node("div",undefined,"tray");
+  shuffle(current.steps,1).filter(value=>!state.sequence.includes(value)).forEach(value=>{
+    choices.append(button(value,()=>edit(()=>{state.sequence.push(value);state.solved=false;}),"tile"));
+  });
+  board.append(choices);
+}
+function drawRewrite(){
+  state.steps.forEach(line=>board.append(node("div",line,"panel formula")));
+  const next=current.steps[state.steps.length];
+  if(!next) return;
+  const [before,answer,wrong,alternatives=[]]=next;
+  if(!state.steps.length) board.append(node("div",before,"panel formula"));
+  const options=node("div",undefined,"tray");
+  shuffle([answer,...alternatives,...wrong],state.steps.length).forEach(value=>{
+    options.append(button(value,()=>edit(()=>{
+      requireThat(value===answer||alternatives.includes(value),"この段階では束縛範囲や真偽を保てません。別の変形を選んでください。");
+      state.steps.push(value);
+      state.solved=false;
+    }),"tile formula"));
+  });
+  board.append(options);
+}
+
+function conditionsTable(rows){
+  const table=node("table",undefined,"truth");
+  const header=node("tr");
+  for(const label of ["式","現在","目標"]) header.append(node("th",label));
+  const head=node("thead");head.append(header);table.append(head);
+  const body=node("tbody");
+  for(const [formula,actual,expected] of rows){
+    const row=node("tr");
+    row.append(node("td",formula,"formula"),node("td",truthText(actual)),node("td",truthText(expected)));
+    body.append(row);
+  }
+  table.append(body);
+  return table;
+}
+function drawTruth(){
+  const row=node("div",undefined,"tray");
+  for(const [name,value] of Object.entries(state.values)){
+    const id="truth-"+name;
+    row.append(tile(name+" = "+truthText(value),()=>edit(()=>{state.values[name]=!value;state.solved=false;},id),id,value));
+  }
+  board.append(row,conditionsTable(current.formulas.map(([f,goal])=>[f,evaluate(parseFormula(f),state.values),goal])));
+}
+function drawModel(){
+  const split=node("div",undefined,"split");
+  const table=node("table",undefined,"truth world");
+  table.createCaption().textContent="辺の表（行→列）";
+  const labels=state.grid.map((_,i)=>"ABC"[i]);
+  const header=table.createTHead().insertRow();
+  for(const label of ["→",...labels]) header.append(node("th",label));
+  const body=table.createTBody();
+  state.grid.forEach((row,i)=>{
+    const tr=body.insertRow(),head=node("th",labels[i]);
+    head.scope="row";tr.append(head);
+    row.forEach((value,j)=>{
+      const id="edge-"+i+"-"+j;
+      const item=tile(value?"●":"○",()=>edit(()=>{state.grid[i][j]=!value;state.solved=false;},id),id,value);
+      item.setAttribute("aria-label",`${labels[i]} から ${labels[j]} への辺`);
+      tr.insertCell().append(item);
+    });
+  });
+  split.append(table,conditionsTable(current.conditions.map(([formula,goal,test])=>[formula,test(state.grid),goal])));
+  board.append(split);
+}
+function drawTerms(){
+  const head=node("div","スタック（右が一番上）","state"),stack=node("div",undefined,"panel stack");
+  if(!state.stack.length) stack.append(node("span","空"));
+  state.stack.forEach(entry=>stack.append(node("span",`${entry.repr} = ${entry.value}（${entry.cost} 記号）`,"formula")));
+  board.append(head,stack);
+  const controls=node("div",undefined,"tray");
+  for(const [symbol,label] of Object.entries({"0̄":"0̄ を積む",S:"S（+1）",P:"P（加算）",T:"T（乗算）"})){
+    const id="term-"+symbol;
+    controls.append(button(label,()=>edit(()=>{
+      const used=state.stack.reduce((sum,entry)=>sum+entry.cost,0);
+      requireThat(used<current.limit,"記号数の上限です。一手戻して組み替えてください。");
+      stepTerm(state.stack,symbol);
+      state.solved=false;
+    },id),"btn",id));
+  }
+  board.append(controls);
+}
+
+function proofTree(lines,id,discharged=new Map(),budget={count:200}){
+  if(budget.count--<=0) return node("span","…");
+  const line=lines[id-1];
+  const item=node("div",undefined,"tree-node");
+  const labels=new Map(discharged);
+  if(line.discharge) labels.set(line.discharge,line.discharge);
+  if(line.parents.length){
+    const branches=node("div",undefined,"tree-children");
+    line.parents.forEach(parent=>branches.append(proofTree(lines,parent,labels,budget)));
+    item.append(branches);
+  }
+  const label=labels.has(id)?"["+format(line.formula)+"]"+id:format(line.formula);
+  const root=node("div",label,"formula"+(line.parents.length?" tree-root":""));
+  if(line.parents.length) root.append(node("small",line.rule+(line.discharge?" "+line.discharge:"")));
+  item.append(root);
+  return item;
+}
+function drawProof(){
+  const goal=node("div",undefined,"panel");
+  goal.append(node("div","目標　"+current.target,"formula"),
+    node("div",state.scope.length?"開いている仮定 "+state.scope.map(n=>"["+n+"]").join(" → "):"開いている局所仮定なし","state"));
+  board.append(goal);
+  state.lines.forEach((line,i)=>{
+    const id=i+1,wrapped=node("div",undefined,"proof-row");
+    wrapped.style.marginLeft=Math.min(line.scope.length,6)*13+"px";
+    const key="proof-line-"+id;
+    const ref=tile(id+". "+format(line.formula),()=>{
+      if(selection.length>=arity[rule]) return feedback("必要な参照行は "+arity[rule]+" 行です。下の参照欄から選択を外せます。","bad");
+      selection.push(id);feedback("");renderBoard(key);
+    },key,selection.includes(id));
+    ref.disabled=!isVisible(line,state.scope);
+    const origin=line.rule+(line.parents.length?" "+line.parents.join(", "):"")+(line.discharge?" · ["+line.discharge+"] を解除":"");
+    wrapped.append(ref,node("small",origin+"｜依存 "+(line.deps.join(", ")||"なし")));
+    board.append(wrapped);
+  });
+  const controls=node("div",undefined,"tray");
+  const rules=node("select");rules.id="proof-rule";rules.setAttribute("aria-label","推論規則");
+  for(const name of current.rules){
+    const option=node("option",name);
+    option.value=name;option.selected=name===rule;rules.append(option);
+  }
+  rules.addEventListener("change",()=>{rule=rules.value;selection=[];draft="";renderBoard("proof-rule");});
+  controls.append(rules);
+  if(inputRules[rule]){
+    const field=node("input");field.id="proof-input";field.value=draft;field.placeholder=inputRules[rule];
+    field.setAttribute("aria-label",inputRules[rule]);field.setAttribute("autocomplete","off");field.setAttribute("autocapitalize","off");
+    field.addEventListener("input",()=>{draft=field.value;});
+    field.addEventListener("keydown",event=>{if(event.key==="Enter" && !event.isComposing) applyProof();});
+    controls.append(field);
+  }
+  controls.append(button("規則を適用",applyProof,"btn","proof-apply"));
+  board.append(controls);
+  if(inputRules[rule] && ["仮定","∨Iᵣ","⊥","∃I"].includes(rule)){
+    const symbols=node("div",undefined,"tray");
+    for(const symbol of ["→","∧","∨","¬","⊥","∀","∃","(",")"]){
+      symbols.append(button(symbol,()=>{
+        const field=byId("proof-input");
+        const start=field.selectionStart,end=field.selectionEnd;
+        field.setRangeText(symbol,start,end,"end");
+        draft=field.value;field.focus();
+      },"btn formula"));
+    }
+    board.append(symbols);
+  }
+  const refs=node("div",undefined,"tray");
+  refs.append(node("span","参照行 "+selection.length+" / "+arity[rule],"state"));
+  selection.forEach((id,i)=>refs.append(button(id+" ×",()=>{selection.splice(i,1);renderBoard();},"btn")));
+  board.append(refs);
+  if(state.solved){
+    const tree=node("div",undefined,"proof-tree");
+    tree.append(proofTree(state.lines,state.lines.length));
+    board.append(node("div","完成した導出木","state"),tree);
+  }
+}
+function applyProof(){
+  edit(()=>{
+    requireThat(state.lines.length<80,"この盤面に置ける行は80行までです。");
+    stepProof(state,rule,draft,selection);
+    state.solved=false;selection=[];draft="";
+  },inputRules[rule]?"proof-input":"proof-apply");
+}
+
+function drawClauses(){
+  const row=node("div",undefined,"tray");
+  state.clauses.forEach((clause,i)=>{
+    const id="clause-"+i;
+    row.append(tile(clauseText(clause),()=>{
+      selection=selection.includes(i)?selection.filter(j=>i!==j):[...selection.slice(-1),i];
+      feedback("");renderBoard(id);
+    },id,selection.includes(i)));
+  });
+  board.append(row);
+  if(selection.length!==2) return;
+  const [first,second]=selection.map(i=>state.clauses[i]);
+  const pivots=first.filter(item=>second.includes(opposite(item)));
+  const controls=node("div",undefined,"tray");
+  for(const pivot of pivots){
+    controls.append(button(pivot+" と "+opposite(pivot)+" を消去",()=>edit(()=>{
+      const next=resolveClauses(first,second,pivot);
+      requireThat(!state.clauses.some(clause=>clauseText([...clause].sort())===clauseText(next)),"同じ節がすでに盤面にあります。");
+      state.clauses.push(next);state.solved=false;selection=[];
+    }),"btn"));
+  }
+  if(!pivots.length) controls.append(node("span","この二つの節に相補リテラルはありません。","state"));
+  board.append(controls);
+}
+
+function validate(stage,attempt){
+  switch(stage.kind){
+    case "choice":
+      requireThat(attempt.pick===stage.correct,attempt.pick?"もう一度、条件に照らして考えてください。":"カードを一枚選んでください。");
+      return;
+    case "order":{
+      requireThat(attempt.sequence.length===stage.steps.length,"すべてのカードを並べてください。");
+      const first=stage.steps.findIndex((card,i)=>attempt.sequence[i]!==card);
+      requireThat(first<0,`${first+1} 番目の手順から見直してください。`);
+      return;
+    }
+    case "rewrite":
+      requireThat(attempt.steps.length===stage.steps.length,"変形を最後まで進めてください。");return;
+    case "truth":
+      requireThat(stage.formulas.every(([f,value])=>evaluate(parseFormula(f),attempt.values)===value),"式ごとの現在値と目標値を見比べてください。");return;
+    case "model":
+      requireThat(stage.conditions.every(([,value,test])=>test(attempt.grid)===value),"条件表で、現在値と目標値が異なる式を見直してください。");return;
+    case "terms":
+      requireThat(attempt.stack.length===1,"完成した閉項が一つだけ残るようにしてください。");
+      requireThat(attempt.stack[0].value===stage.target && attempt.stack[0].cost<=stage.limit,"いまの値は "+attempt.stack[0].value+" です。目標値に合うように組み替えてください。");return;
+    case "proof":{
+      const last=attempt.lines.at(-1);
+      requireThat(last && same(last.formula,parseFormula(stage.target)),"導出の最終行を目標式にしてください。");
+      requireThat(attempt.scope.length===0,"目標式には到達しています。局所仮定 "+attempt.scope.join(", ")+" を解除してください。");
+      requireThat(last.deps.every(id=>id<=stage.given.length),"依存している仮定を解除してください。");return;
+    }
+    case "clauses":
+      requireThat(attempt.clauses.some(clause=>clause.length===0),"空節 □ が出るまで解消を続けてください。");return;
+  }
+}
+function check(){
+  checked(()=>{
+    validate(current,state);
+    state.solved=true;
+    completed.add(current.id);
+    try {localStorage.setItem(storage,JSON.stringify([...completed]));} catch {}
+    feedback("クリアしました。","good");
+    renderNavigation();renderBoard();
+  });
+}
+byId("mobile").addEventListener("change",event=>setStage(all.find(level=>level.id===event.target.value),{focus:true}));
+byId("hint").addEventListener("click",()=>{
+  hintShown=!hintShown;
+  byId("help").textContent=hintShown?current.hint:"";
+  byId("hint").setAttribute("aria-expanded",String(hintShown));
+});
+byId("check").addEventListener("click",check);
+byId("undo").addEventListener("click",()=>{
+  const previous=historyStack.pop();
+  if(!previous) return;
+  state=previous;selection=[];feedback("");renderBoard();
+});
+byId("reset").addEventListener("click",()=>setStage(current));
+byId("next").addEventListener("click",()=>{
+  const next=all[all.indexOf(current)+1];
+  if(next) setStage(next,{focus:true});
+});
+window.addEventListener("hashchange",()=>{
+  const match=all.find(level=>level.id===location.hash.slice(1));
+  if(match && match!==current) setStage(match,{focus:true,updateHash:false});
+});
+setStage(current);
+</script>
+</html>
