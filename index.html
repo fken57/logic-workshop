@@ -18,7 +18,7 @@ main{min-width:0;width:100%;max-width:1110px;margin:0 auto;padding:33px clamp(17
 <main>
 <header class="top"><div><h2 id="chapter-title"></h2><p class="sub" id="chapter-sub"></p></div></header>
 <div id="levels" class="levels" aria-label="ステージ"></div>
-<article class="sheet" aria-labelledby="title"><header class="problem"><div id="source" class="source"></div><h3 id="title" tabindex="-1"></h3><p id="prompt"></p></header>
+<article class="sheet" aria-labelledby="title"><header class="problem"><div id="source" class="source"></div><h3 id="title" tabindex="-1"></h3><p id="episode" class="panel"></p><p id="prompt"></p></header>
 <section id="board" aria-label="パズル盤面"></section>
 <div id="feedback" role="status"></div><div id="help" role="status"></div>
 <div class="actions"><button id="check" class="btn primary">判定する</button><button id="hint" class="btn">ヒント</button><button id="undo" class="btn">一手戻す</button><button id="reset" class="btn">やり直す</button><button id="next" class="btn next">次のステージ →</button></div></article>
@@ -41,10 +41,10 @@ const classical = [...conjunction,"⊥","RAA"];
 const quantified = [...conjunction,"∀I","∀E","∃I","∃E"];
 const chapters = [
   {name:"帰納法と集合", source:"第2〜5回", stages:[
-    order("帰納法の足場","1 から n までの和の公式を証明する流れを並べてください。",["n=1 で公式を確認する","任意の k≥1 で公式を仮定する","k+1 の和を k までの和と k+1 に分ける","帰納法の仮定を代入し、k+1 の公式に整理する","帰納法により、すべての n≥1 で成立と結論する"],"基底と帰納段階の二つをそろえます。"),
-    choice("完全帰納法","n≥2 の整数が素数の積で書けることを完全帰納法で示します。合成数 n=ab で使う仮定はどれですか。","2≤m<n のすべての m が素数の積で書ける",["m=n−1 だけが素数の積で書ける","n 自身が素数の積で書ける","n 以上の m がすべて素数の積で書ける"],"a と b はどちらも n より小さいです。"),
-    choice("反例を最小にする","自然数についての主張に反例があると仮定しました。最小の反例 m を選ぶと何が分かりますか。","m より小さい自然数では主張が成立する",["m−1 では必ず反例になる","m より大きい自然数では成立する","反例は m の一つだけになる"],"自然数の整列性を使います。"),
-    choice("偶数の無限列","ℕ={0,1,…} と非負偶数全体の間の全単射を選んでください。","n ↦ 2n",["n ↦ 2n+2","n ↦ 2n+1","n ↦ 0"],"0 も値域の要素です。"),
+    choice("最初の監査：消えた一手","復元器の記録には「4 と 7 は作れる。作れた数には 4 を足せる。ゆえに 18 以上はすべて作れる」とあります。最後の一文を保証するため、基底として一括検証すべき組はどれですか。","18, 19, 20, 21",["18, 22, 26, 30","18, 19, 20","18 と 21"],"操作で 4 を足しても剰余類は変わりません。"),
+    order("復元器の連続運転","4 と 7 の非負整数結合で 18 以上を作れることを、命題 P(k)＝「k から k+3 まで作れる」で証明してください。",["18=7+7+4、19=7+4+4+4、20=4×5、21=7×3 を確認する","任意の k≥18 について P(k) を仮定する","既に作れる k に 4 を足して k+4 を作る","仮定から残る三数を引き継ぎ、P(k+1) を得る","帰納法を適用し、任意の n≥18 に P(n) を使う"],"窓を一つ進めると、新しく必要な値は一つだけです。"),
+    choice("最小反例の境界","18 以上の最小の作れない数を m とします。「m−4 は作れる」と言うために、m より小さいことに加えて何が必要ですか。","m−4≥18 を基底の検査で保証する",["m が 4 の倍数であることを示す","m−4 が最小反例より小さいともう一度示す","m が 7 の倍数でないと示す"],"最小性が情報を与えるのは、反例を探した範囲の中です。"),
+    choice("無限書庫の転居","書庫の棚は 0,1,2,… と並び、どの棚にも記録が一冊あります。平方数の棚をすべて空け、他の棚をちょうど一度ずつ埋める移転法はどれですか。","棚 n の記録を、小さい順に数えて n+1 番目の非平方数の棚へ移す",["棚 n の記録を棚 n²+1 へ移す","棚 n の記録を棚 2n+1 へ移す","平方数の棚だけ、その直後の棚へ移す"],"移転先が重ならず、すべての非平方数に届く必要があります。"),
     choice("対角線の反撃","A の各要素 a に部分集合 f(a) を割り当てました。どの f(a) とも異なる部分集合はどれですか。","{a∈A | a∉f(a)}",["{a∈A | a∈f(a)}","空集合","すべての f(a) の和集合"],"各 a の位置で f(a) と所属を反転します。"),
     choice("集合の否定","『すべての A の要素は B に属する』の否定を選んでください。","A に属し B に属さない要素がある",["B に属し A に属さない要素がある","A と B に共通要素がない","A のすべての要素が B に属さない"],"包含が破れるときに必要な要素は一つです。")
   ]},
@@ -374,13 +374,26 @@ function stepTerm(stack,symbol){
 const byId=id=>document.getElementById(id);
 const board=byId("board");
 const all=chapters.flatMap((chapter,c)=>chapter.stages.map((stage,s)=>({...stage,source:chapter.source,c,s,id:c+"-"+s})));
-const storage="logic-workshop-v1";
+const storage="logic-workshop-v2";
 function readProgress(){
-  try {return new Set(JSON.parse(localStorage.getItem(storage)??"[]").filter(id=>all.some(level=>level.id===id)));}
+  try {return new Set((localStorage.getItem(storage)===null ? JSON.parse(localStorage.getItem("logic-workshop-v1")??"[]").filter(id=>!/^0-[0-3]$/.test(id)) : JSON.parse(localStorage.getItem(storage))).filter(id=>all.some(level=>level.id===id)));}
   catch {return new Set();}
 }
 const completed=readProgress();
 let current=all.find(level=>level.id===location.hash.slice(1))??all[0];
+const episodes=[
+["停電の朝、書庫の復元器に「18 以上の番地はすべて復旧済み」と表示された。ところが検査記録は二行しかない。主任の署名を信じる前に、根拠を組み直そう。","記録の欠落が見つかった。次は復旧信号そのものを調べる。"],
+["二台の端末が同じ信号に違う判定を返した。入力を一つずつ固定し、どこで食い違うか突き止めよう。","入力を再現できた。端末の内部式を比較できる。"],
+["古い端末は NAND しか持たない。設計図と照合するには、同じ条件を別の形で書き直す必要がある。","二台の式が読めた。古い端末の承認記録に進もう。"],
+["承認記録には結論だけが残り、誰がどの仮定を使ったかが消えている。第三者が検査できる導出を残そう。","導出が復元された。今度は検査器自体が信用できるか調べよう。"],
+["主任が尋ねた。「通った証明は信じていいのか。通らなかった式は偽なのか」。二つの問いにそれぞれ答えよう。","検査器の保証範囲が分かった。次は記録中の名前を照合する。"],
+["記録の変数を一括改名した途端、指していた対象が変わった。どの束縛で名前が捕まったのだろう。","名前を修復した。記録が表す世界を再構成しよう。"],
+["証言をすべて満たす配置は本当に存在するのか。小さなモデルを組み、証言を一つずつ照合しよう。","配置を確認した。主任はこれを全棚の保証に使うつもりだ。"],
+["一つの棚での成功を、主任は「すべての棚で成功」と記した。この一般化を許す条件を調べよう。","証人と任意の対象を区別できた。最後の検査用に記録を変換する。"],
+["最後の記録は量化子が入り組み、照合機に渡せない。証人が何に依存するかを残して変換しよう。","照合機の入力がそろった。相反する二つのログが残っている。"],
+["復旧完了と障害継続、二つのログが同時刻に残っている。節を突き合わせ、両立できない証言を見つけよう。","監査終了。主任は復旧証明に署名し、その導出を次の当直に引き渡した。"]
+];
+let languageMode=false, program="";
 let state,historyStack=[],selection=[],rule="",draft="",hintShown=false;
 
 function node(tag,value,classes){
@@ -452,6 +465,7 @@ function init(stage){
 
 function setStage(stage,{focus=false,updateHash=true}={}){
   current=stage;
+  program="";
   state=init(current);
   historyStack=[];
   selection=[];
@@ -464,6 +478,7 @@ function setStage(stage,{focus=false,updateHash=true}={}){
   if(updateHash && location.hash.slice(1)!==stage.id) window.history.replaceState(null,"","#"+stage.id);
   byId("title").textContent=stage.title;
   byId("source").textContent="講義資料 "+stage.source;
+  byId("episode").textContent=episodes[stage.c][0];
   byId("prompt").textContent=stage.prompt;
   renderNavigation();
   renderBoard();
@@ -625,6 +640,29 @@ function proofTree(lines,id,discharged=new Map(),budget={count:200}){
   item.append(root);
   return item;
 }
+const commands={assume:"仮定",intro:"→I",apply:"→E",pair:"∧I",left:"∧Eₗ",right:"∧Eᵣ",absurd:"⊥",raa:"RAA",orRight:"∨Iᵣ",generalize:"∀I",instantiate:"∀E",exists:"∃I",useExists:"∃E"};
+function runProgram(initial,stage,source){
+  const result=structuredClone(initial);
+  let count=0;
+  source.split(/\r?\n/).forEach((line,i)=>{
+    const code=line.split("#")[0].trim();
+    if(!code)return;
+    try{
+      const split=code.indexOf(":");
+      const [cmd,...refs]=(split<0?code:code.slice(0,split)).trim().split(/\s+/);
+      const op=Object.hasOwn(commands,cmd)?commands[cmd]:cmd;
+      requireThat(stage.rules.includes(op),"この問題で使える命令を確認してください。");
+      requireThat(refs.every(x=>/^[1-9]\d*$/.test(x)),"参照行は正の整数で指定してください。");
+      const arg=split<0?"":code.slice(split+1).trim().replaceAll("&","∧").replaceAll("|","∨");
+      requireThat(Boolean(inputRules[op])===Boolean(arg),"式や変数は必要な命令だけに : の後で指定します。");
+      requireThat(result.lines.length<80,"証明は80行までです。");
+      stepProof(result,op,arg,refs.map(Number));count++;
+    }catch(e){throw Error((i+1)+" 行目："+e.message);}
+  });
+  requireThat(count>0,"命令を入力してください。");
+  result.solved=false;
+  return result;
+}
 function drawProof(){
   const goal=node("div",undefined,"panel");
   goal.append(node("div","目標　"+current.target,"formula"),
@@ -643,6 +681,20 @@ function drawProof(){
     wrapped.append(ref,node("small",origin+"｜依存 "+(line.deps.join(", ")||"なし")));
     board.append(wrapped);
   });
+  board.append(button(languageMode?"タイルモードへ":"証明言語モードへ",()=>{languageMode=!languageMode;selection=[];renderBoard();}));
+  if(languageMode){
+    board.append(node("p","現在の証明の末尾に、1行ずつ命令を追加します。参照番号は上の証明行に対応します。例：assume : P と intro 1 で、空の証明から P→P を作れます。"));
+    const manual=node("details");
+    manual.append(node("summary","この問題の命令一覧"));
+    for(const [cmd,op] of Object.entries(commands).filter(([,op])=>current.rules.includes(op))){
+      manual.append(node("div",cmd+[""," 行"," 行 行"][arity[op]]+(inputRules[op]?" : "+inputRules[op]:"")+"　("+op+")"));
+    }
+    const box=node("textarea");box.rows=6;box.style.width="100%";box.id="proof-code";box.setAttribute("aria-label","証明プログラム");box.spellcheck=false;box.value=program;
+    box.oninput=()=>{program=box.value;};
+    board.append(manual,box,button("入力した行を実行",()=>edit(()=>{state=runProgram(state,current,program);program="";},"proof-code")));
+    if(state.solved) board.append(proofTree(state.lines,state.lines.length));
+    return;
+  }
   const controls=node("div",undefined,"tray");
   const rules=node("select");rules.id="proof-rule";rules.setAttribute("aria-label","推論規則");
   for(const name of current.rules){
@@ -751,7 +803,7 @@ function check(){
     state.solved=true;
     completed.add(current.id);
     try {localStorage.setItem(storage,JSON.stringify([...completed]));} catch {}
-    feedback("クリアしました。","good");
+    feedback(current.s===chapters[current.c].stages.length-1 ? episodes[current.c][1] : "クリアしました。","good");
     renderNavigation();renderBoard();
   });
 }
