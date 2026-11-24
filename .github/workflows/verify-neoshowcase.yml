@@ -1,7 +1,7 @@
 name: Verify NeoShowcase build input
 on:
-  push:
-    branches: [diagnose/neoshowcase-1c27f3b]
+  pull_request:
+    branches: [main]
 permissions:
   contents: read
 jobs:
