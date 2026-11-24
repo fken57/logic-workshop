@@ -12,6 +12,8 @@ main{min-width:0;width:100%;max-width:1110px;margin:0 auto;padding:33px clamp(17
 .sheet{background:var(--white);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}.problem{padding:22px clamp(15px,4vw,34px) 17px;border-bottom:1px solid var(--line)}.problem h3{font-size:25px;margin:2px 0 7px;line-height:1.25}.problem p{margin:6px 0}.source{font-size:13px;color:var(--muted)}#board{padding:23px clamp(15px,4vw,34px);min-height:210px}.actions{border-top:1px solid var(--line);padding:15px clamp(15px,4vw,34px);display:flex;flex-wrap:wrap;gap:8px;align-items:center}.actions .next{margin-left:auto}.btn{border:1px solid var(--line);background:white;padding:7px 12px;border-radius:8px}.btn:hover:not(:disabled){border-color:var(--purple);background:var(--pale)}.primary,.primary:hover:not(:disabled){background:var(--purple);border-color:var(--purple);color:white}.tile{border:1px solid var(--line);border-radius:8px;background:#f8f8fc;padding:8px 11px}.tile[aria-pressed=true]{background:var(--pale);border-color:var(--purple);color:#362075}.tray{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:9px 0}.panel{padding:12px 15px;background:#f5f4fa;border-radius:9px;margin:0 0 14px}.formula{font-family:"Cambria Math","STIX Two Text",serif;font-size:1.16em;overflow-wrap:anywhere}.proof-row{display:flex;gap:8px;align-items:center;border-inline-start:3px solid #e3daf9;margin-block:5px;padding-inline:8px;min-width:0}.proof-row .tile{text-align:left;overflow-wrap:anywhere}.proof-row small{color:var(--muted);overflow-wrap:anywhere}label{display:inline-flex;align-items:center;gap:6px}input,select{min-width:0;max-width:100%;padding:7px;border:1px solid #aab3c4;border-radius:6px;background:white;color:var(--ink)}.stack{display:flex;gap:8px;flex-wrap:wrap}.stack span{background:white;border:1px solid var(--line);border-radius:6px;padding:6px;overflow-wrap:anywhere}.state{font-size:14px;color:var(--muted)}#feedback,#help{padding:0 clamp(15px,4vw,34px);margin:0 0 14px;overflow-wrap:anywhere}#feedback:empty,#help:empty{display:none}#feedback[data-tone=good]{color:var(--green)}#feedback[data-tone=bad]{color:var(--rose)}#help{color:#433366}.truth{border-collapse:collapse;margin:8px 0}.truth th,.truth td{border:1px solid var(--line);padding:5px 9px;text-align:center}.proof-tree{overflow:auto;padding:10px 0;text-align:center}.tree-node{display:inline-flex;flex-direction:column;align-items:stretch;margin:0 5px;vertical-align:top;white-space:nowrap}.tree-children{display:flex;align-items:end;justify-content:center;gap:3px}.tree-root{border-top:1px solid #78738b;padding:0 6px}.tree-node small{font:11px "Yu Gothic UI",sans-serif;color:var(--muted);margin-left:4px}.split{display:flex;flex-wrap:wrap;gap:24px}.world td button{width:39px;padding:4px}.world td,.world th{padding:4px 7px}.status-line{display:block;margin:3px 0}.footer-note{margin-top:12px;font-size:13px;color:var(--muted)}.mobile-chapters{display:none}
 @media(max-width:720px){.shell{display:block}aside{position:static;max-height:none;padding:13px 16px}.brand{font-size:20px}.aside-progress{padding:0 8px 7px}aside nav{display:none}.mobile-chapters{display:block;width:100%;margin-top:7px}main{padding-top:20px}.top{align-items:start}.proof-row{margin-left:0!important}.actions .next{margin-left:0}}
 @media(pointer:coarse){button,select,input{min-height:44px}.world td,.world th{padding-inline:3px}}
+.proof-editor{display:grid;grid-template-columns:3.5ch minmax(0,1fr);background:#182033;color:#eef2ff;border-radius:8px;overflow:hidden;margin:.7rem 0}.proof-editor:focus-within{outline:2px solid #7254d6}.proof-editor pre,.proof-editor textarea{font:16px/1.65 Consolas,monospace;letter-spacing:normal;tab-size:2;white-space:pre;text-align:left;box-sizing:border-box;margin:0;border:0;border-radius:0}.proof-editor .gutter{height:14rem;overflow:hidden;color:#a9b6ce;text-align:right;padding:.6rem .3rem;background:#222d43}.proof-layer{position:relative;min-width:0;height:14rem}.proof-layer pre,.proof-layer textarea{position:absolute;inset:0;width:100%;height:100%;padding:.6rem;overflow:scroll}.proof-layer pre{pointer-events:none;color:#ecf0fc}.proof-layer textarea{background:transparent;color:transparent;caret-color:white;resize:none;outline:0;-webkit-text-fill-color:transparent}.proof-layer textarea::selection{background:#788ae75c}.tok-command{color:#c9aaff}.tok-ref{color:#ffd288}.tok-operator{color:#84d8ff}.tok-comment{color:#a7b6a3;font-style:italic}.proof-diagnostic{min-height:1.65em}.proof-diagnostic[data-error=true]{color:#a3263c}.source-error{background:#89364d66}
+@media(forced-colors:active){.proof-layer pre{visibility:hidden}.proof-layer textarea{color:CanvasText;-webkit-text-fill-color:CanvasText;caret-color:CanvasText}}
 </style>
 <div class="shell">
 <aside><h1 class="brand">論理工房</h1><div id="total" class="aside-progress"></div><nav id="chapters" aria-label="章"></nav><select id="mobile" aria-label="章を選択" class="mobile-chapters"></select></aside>
@@ -643,7 +645,6 @@ function proofTree(lines,id,discharged=new Map(),budget={count:200}){
 const commands={assume:"仮定",intro:"→I",apply:"→E",pair:"∧I",left:"∧Eₗ",right:"∧Eᵣ",absurd:"⊥",raa:"RAA",orRight:"∨Iᵣ",generalize:"∀I",instantiate:"∀E",exists:"∃I",useExists:"∃E"};
 function runProgram(initial,stage,source){
   const result=structuredClone(initial);
-  let count=0;
   source.split(/\r?\n/).forEach((line,i)=>{
     const code=line.split("#")[0].trim();
     if(!code)return;
@@ -653,22 +654,66 @@ function runProgram(initial,stage,source){
       const op=Object.hasOwn(commands,cmd)?commands[cmd]:cmd;
       requireThat(stage.rules.includes(op),"この問題で使える命令を確認してください。");
       requireThat(refs.every(x=>/^[1-9]\d*$/.test(x)),"参照行は正の整数で指定してください。");
-      const arg=split<0?"":code.slice(split+1).trim().replaceAll("&","∧").replaceAll("|","∨");
+      const arg=split<0?"":code.slice(split+1).trim().replaceAll("&","∧").replaceAll("|","∨").replace(/\b(forall|exists|false|true)\b/g,word=>({forall:"∀",exists:"∃",false:"⊥",true:"⊤"})[word]);
       requireThat(Boolean(inputRules[op])===Boolean(arg),"式や変数は必要な命令だけに : の後で指定します。");
       requireThat(result.lines.length<80,"証明は80行までです。");
-      stepProof(result,op,arg,refs.map(Number));count++;
+      stepProof(result,op,arg,refs.map(Number));
     }catch(e){throw Error((i+1)+" 行目："+e.message);}
   });
-  requireThat(count>0,"命令を入力してください。");
+  result.source=source;
   result.solved=false;
   return result;
+}
+function drawEditor(){
+  const manual=node("details");
+  manual.append(node("summary","文法と、この問題で使える命令"));
+  manual.append(node("p","1行に1命令。命令、参照する証明行の番号、必要なら : と式を書きます。空行と # 以降は無視します。式には ->  &  |  ~  forall  exists  false  true も使えます。"));
+  for(const [cmd,op] of Object.entries(commands).filter(([,op])=>current.rules.includes(op))){
+    manual.append(node("div",cmd+[""," 行"," 行 行"][arity[op]]+(inputRules[op]?" : "+inputRules[op]:"")+"　("+op+")"));
+  }
+  const editor=node("div",undefined,"proof-editor"), gutter=node("pre",undefined,"gutter");
+  const layer=node("div",undefined,"proof-layer"), paint=node("pre"), box=node("textarea");
+  const status=node("div",undefined,"proof-diagnostic");
+  gutter.setAttribute("aria-hidden","true");paint.setAttribute("aria-hidden","true");
+  box.id="proof-code";box.wrap="off";box.spellcheck=false;box.setAttribute("autocapitalize","off");box.setAttribute("aria-label","証明のソースコード");box.value=program;
+  function sync(){paint.scrollTop=box.scrollTop;paint.scrollLeft=box.scrollLeft;gutter.scrollTop=box.scrollTop;}
+  function refresh(){
+    program=box.value;
+    const tree=byId("editor-tree");if(tree)tree.hidden=program!==state.source;
+    let errorLine=0;
+    try{
+      const preview=runProgram(init(current),current,program);
+      const last=preview.lines.at(-1);
+      status.textContent=last?"証明行 "+preview.lines.length+"　"+format(last.formula)+"　｜　開いた仮定 "+preview.scope.length:"命令を入力してください。例：assume : P";
+      status.dataset.error="false";
+    }catch(e){errorLine=parseInt(e.message,10);status.textContent=e.message;status.dataset.error="true";}
+    box.setAttribute("aria-invalid",String(Boolean(errorLine)));
+    const rows=program.split("\n");
+    gutter.textContent=rows.map((_,i)=>i+1).join("\n")+"\n ";
+    paint.replaceChildren();
+    rows.forEach((line,i)=>{
+      const row=node("span",undefined,errorLine===i+1?"source-error":"");
+      for(const token of line.match(/#[^\n]*|->|[A-Za-z]+|\d+|[^\s]|\s+/g)||[]){
+        const cls=token.startsWith("#")?"comment":Object.hasOwn(commands,token)?"command":/^\d+$/.test(token)?"ref":/^(->|[→∧∨¬⊥⊤∀∃&|~:]|forall|true|false)$/.test(token)?"operator":"";
+        row.append(node("span",token,cls?"tok-"+cls:""));
+      }
+      paint.append(row,document.createTextNode(i+1===rows.length?" ":"\n"));
+    });
+    sync();
+  }
+  box.oninput=refresh;box.onscroll=sync;
+  box.onkeydown=e=>{if(!e.isComposing&&e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();check();}};
+  layer.append(paint,box);editor.append(gutter,layer);
+  status.id="proof-diagnostics";box.setAttribute("aria-describedby",status.id);
+  board.append(manual,editor,status,button("証明を判定（Ctrl / ⌘ + Enter）",check));
+  refresh();
 }
 function drawProof(){
   const goal=node("div",undefined,"panel");
   goal.append(node("div","目標　"+current.target,"formula"),
     node("div",state.scope.length?"開いている仮定 "+state.scope.map(n=>"["+n+"]").join(" → "):"開いている局所仮定なし","state"));
   board.append(goal);
-  state.lines.forEach((line,i)=>{
+  (languageMode ? state.lines.slice(0,current.given.length) : state.lines).forEach((line,i)=>{
     const id=i+1,wrapped=node("div",undefined,"proof-row");
     wrapped.style.marginLeft=Math.min(line.scope.length,6)*13+"px";
     const key="proof-line-"+id;
@@ -676,23 +721,18 @@ function drawProof(){
       if(selection.length>=arity[rule]) return feedback("必要な参照行は "+arity[rule]+" 行です。下の参照欄から選択を外せます。","bad");
       selection.push(id);feedback("");renderBoard(key);
     },key,selection.includes(id));
-    ref.disabled=!isVisible(line,state.scope);
+    ref.disabled=languageMode || !isVisible(line,state.scope);
     const origin=line.rule+(line.parents.length?" "+line.parents.join(", "):"")+(line.discharge?" · ["+line.discharge+"] を解除":"");
     wrapped.append(ref,node("small",origin+"｜依存 "+(line.deps.join(", ")||"なし")));
     board.append(wrapped);
   });
-  board.append(button(languageMode?"タイルモードへ":"証明言語モードへ",()=>{languageMode=!languageMode;selection=[];renderBoard();}));
+  board.append(button(languageMode?"タイルモードへ":"証明言語モードへ",()=>checked(()=>{
+    if(languageMode) commitEditor(); else program=state.source||"";
+    languageMode=!languageMode;selection=[];renderBoard();
+  })));
   if(languageMode){
-    board.append(node("p","現在の証明の末尾に、1行ずつ命令を追加します。参照番号は上の証明行に対応します。例：assume : P と intro 1 で、空の証明から P→P を作れます。"));
-    const manual=node("details");
-    manual.append(node("summary","この問題の命令一覧"));
-    for(const [cmd,op] of Object.entries(commands).filter(([,op])=>current.rules.includes(op))){
-      manual.append(node("div",cmd+[""," 行"," 行 行"][arity[op]]+(inputRules[op]?" : "+inputRules[op]:"")+"　("+op+")"));
-    }
-    const box=node("textarea");box.rows=6;box.style.width="100%";box.id="proof-code";box.setAttribute("aria-label","証明プログラム");box.spellcheck=false;box.value=program;
-    box.oninput=()=>{program=box.value;};
-    board.append(manual,box,button("入力した行を実行",()=>edit(()=>{state=runProgram(state,current,program);program="";},"proof-code")));
-    if(state.solved) board.append(proofTree(state.lines,state.lines.length));
+    drawEditor();
+    if(state.solved){const tree=proofTree(state.lines,state.lines.length);tree.id="editor-tree";board.append(tree);}
     return;
   }
   const controls=node("div",undefined,"tray");
@@ -738,6 +778,8 @@ function applyProof(){
   edit(()=>{
     requireThat(state.lines.length<80,"この盤面に置ける行は80行までです。");
     stepProof(state,rule,draft,selection);
+    const command=Object.keys(commands).find(key=>commands[key]===rule);
+    state.source=[state.source,[command,...selection].join(" ")+(inputRules[rule]?" : "+draft:"")].filter(Boolean).join("\n");
     state.solved=false;selection=[];draft="";
   },inputRules[rule]?"proof-input":"proof-apply");
 }
@@ -797,8 +839,15 @@ function validate(stage,attempt){
       requireThat(attempt.clauses.some(clause=>clause.length===0),"空節 □ が出るまで解消を続けてください。");return;
   }
 }
+function commitEditor(){
+  if(program===(state.source||""))return;
+  const updated=runProgram(init(current),current,program);
+  historyStack.push(state);if(historyStack.length>120)historyStack.shift();
+  state=updated;
+}
 function check(){
   checked(()=>{
+    if(languageMode && current.kind==="proof")commitEditor();
     validate(current,state);
     state.solved=true;
     completed.add(current.id);
@@ -817,7 +866,7 @@ byId("check").addEventListener("click",check);
 byId("undo").addEventListener("click",()=>{
   const previous=historyStack.pop();
   if(!previous) return;
-  state=previous;selection=[];feedback("");renderBoard();
+  state=previous;program=state.source||"";selection=[];feedback("");renderBoard();
 });
 byId("reset").addEventListener("click",()=>setStage(current));
 byId("next").addEventListener("click",()=>{
