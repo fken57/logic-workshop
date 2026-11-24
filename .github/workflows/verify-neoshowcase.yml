@@ -1,0 +1,22 @@
+name: Verify NeoShowcase build input
+on:
+  push:
+    branches: [diagnose/neoshowcase-1c27f3b]
+permissions:
+  contents: read
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 1c27f3bb1b3f770749e971bebd3e75effc4e146f
+          persist-credentials: false
+      - run: docker build --pull --progress=plain -t logic-workshop-diagnostic .
+      - run: |
+          docker run -d --name workshop -p 127.0.0.1:18080:8080 logic-workshop-diagnostic
+          curl --retry 8 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:18080/ -o /tmp/workshop.html
+          grep -q 'data-language-server' /tmp/workshop.html
+          curl -fsS http://127.0.0.1:18080/proof-language.js -o /dev/null
+          curl -fsS -H 'Content-Type: application/json' -d '[{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}]' http://127.0.0.1:18080/lsp | grep -q diagnosticProvider
